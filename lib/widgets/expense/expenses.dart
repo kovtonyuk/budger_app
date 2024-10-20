@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:budget_app/widgets/expense/expenses_list/expenses_list.dart';
 import 'package:budget_app/models/expense.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:budget_app/models/category.dart';
 
 class Expenses extends StatefulWidget {
   const Expenses({super.key});
@@ -18,7 +19,7 @@ class _ExpensesState extends State<Expenses> {
     Expense(
         amount: 20.00,
         currency: Currency.usd,
-        category: Category.food,
+        category: BaseCategory.food,
         account: Account.cash,
         date: DateTime.now(),
         place: 'place',
@@ -31,11 +32,43 @@ class _ExpensesState extends State<Expenses> {
     });
   }
 
+  void _removeExpense(Expense expense) {
+    final expenseIndex = _registeredExpenses.indexOf(expense);
+    setState(() {
+      _registeredExpenses.remove(expense);
+    });
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 3),
+        content: const Text('Expense deleted.'),
+        action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () {
+              setState(() {
+                _registeredExpenses.insert(expenseIndex, expense);
+              });
+            }),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     const income = 1000.00;
     const outcome = 359.00;
     const total = income - outcome;
+
+    Widget mainContent = const Center(
+      child: Text('No data found'),
+    );
+
+    if (_registeredExpenses.isNotEmpty) {
+      mainContent = ExpensesList(
+        expenses: _registeredExpenses,
+        onRemoveExpense: _removeExpense,
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -118,7 +151,7 @@ class _ExpensesState extends State<Expenses> {
             ),
           ),
           Expanded(
-            child: ExpensesList(expenses: _registeredExpenses),
+            child: mainContent,
           ),
           const Text('Show more'),
         ],

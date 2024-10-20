@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
+import 'package:budget_app/models/category.dart';
 
 final formatter = DateFormat.yMMMMEEEEd();
 
 const uuid = Uuid();
 
-enum Category { food, travel, leisure, work }
+// enum Category { food, travel, leisure, work }
 
 enum Currency { usd, eur, uah }
 
 enum Account { card, cash }
 
-const categoryIcons = {
-  Category.food: Icons.lunch_dining,
-  Category.travel: Icons.flight_takeoff,
-  Category.leisure: Icons.movie,
-  Category.work: Icons.work,
-};
+// const categoryIcons = {
+//   Category.food: Icons.lunch_dining,
+//   Category.travel: Icons.flight_takeoff,
+//   Category.leisure: Icons.movie,
+//   Category.work: Icons.work,
+// };
 
 const accountIcons = {
   Account.card: Icons.credit_card,
@@ -37,7 +38,7 @@ class Expense {
 
   final double amount;
   final Currency currency;
-  final Category category;
+  final BaseCategory category;
   final Account account;
   final String note;
   final DateTime date;
