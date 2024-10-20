@@ -15,10 +15,10 @@ const categoryIcons = {
 class Category {
   Category({
     required this.title,
-    //required this.category, // Додано поле для зберігання типу BaseCategory
   }) : id = uuid.v4();
 
   final String title;
-  //final BaseCategory category; // Додано поле category
   final String id;
+
+  String get name => title; // Додайте цей геттер
 }

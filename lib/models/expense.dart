@@ -38,7 +38,7 @@ class Expense {
 
   final double amount;
   final Currency currency;
-  final BaseCategory category;
+  final Category category;
   final Account account;
   final String note;
   final DateTime date;

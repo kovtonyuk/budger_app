@@ -19,7 +19,7 @@ class _AddExpenseForm extends State<AddExpenseForm> {
   final _noteController = TextEditingController();
   final _placeController = TextEditingController();
   DateTime? _selectedDate;
-  BaseCategory? _selectedCategory; // Зміна на nullable
+  Category? _selectedCategory; // Зміна на nullable
   Currency _selectedCurrency = Currency.usd;
   Account _selectedAccount = Account.card;
   final _formKey = GlobalKey<FormState>();
@@ -59,13 +59,14 @@ class _AddExpenseForm extends State<AddExpenseForm> {
 
       // Використовуємо _selectedCategory з перевіркою на null
       final category = _selectedCategory ??
-          BaseCategory
-              .food; // Встановлюємо стандартну категорію, якщо _selectedCategory є null
+          Category(
+              title: BaseCategory.food
+                  .name); // Використовуємо базову категорію за замовчуванням
 
       widget.onAddExpense(Expense(
         amount: enteredAmount,
         currency: _selectedCurrency,
-        category: category, // Тепер category - тип BaseCategory
+        category: category,
         account: _selectedAccount,
         note: _noteController.text,
         date: _selectedDate!,
@@ -88,7 +89,10 @@ class _AddExpenseForm extends State<AddExpenseForm> {
 
   void _addCategory(Category newCategory) {
     setState(() {
-      _customCategories.add(newCategory); // Додаємо нову категорію до списку
+      _customCategories.add(newCategory);
+      _selectedCategory = newCategory; // Призначте нову категорію як вибрану
+      print(
+          'Categories after addition: ${_customCategories.map((c) => c.title).toList()}');
     });
   }
 
@@ -96,7 +100,73 @@ class _AddExpenseForm extends State<AddExpenseForm> {
   void dispose() {
     _noteController.dispose();
     _amountController.dispose();
+    _placeController.dispose();
     super.dispose();
+  }
+
+  Widget _buildCategorySelection() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ListView.builder(
+        itemCount: BaseCategory.values.length + _customCategories.length + 1,
+        itemBuilder: (context, index) {
+          if (index < BaseCategory.values.length) {
+            final category = BaseCategory.values[index];
+            return ListTile(
+              leading: Icon(categoryIcons[category]),
+              title: Text(category.name.toUpperCase()),
+              onTap: () {
+                setState(() {
+                  // Переконайтеся, що ви створюєте нову Category з BaseCategory
+                  _selectedCategory = Category(title: category.name);
+                });
+                Navigator.pop(context);
+              },
+            );
+          } else if (index <
+              BaseCategory.values.length + _customCategories.length) {
+            final customCategory =
+                _customCategories[index - BaseCategory.values.length];
+            return ListTile(
+              title: Text(customCategory.title),
+              onTap: () {
+                setState(() {
+                  _selectedCategory = customCategory;
+                });
+                Navigator.pop(context);
+              },
+            );
+          } else {
+            return ListTile(
+              leading: const Icon(Icons.add),
+              title: const Text('Add Category'),
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (BuildContext ctx) {
+                    return StatefulBuilder(
+                      builder: (BuildContext context, StateSetter setState) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: AddCategoryForm(
+                            onAddCategory: (newCategory) {
+                              _addCategory(newCategory);
+                              Navigator.pop(ctx);
+                            },
+                            existingCategories:
+                                _customCategories.map((c) => c.title).toList(),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
   }
 
   @override
@@ -152,61 +222,21 @@ class _AddExpenseForm extends State<AddExpenseForm> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Category:'),
-                DropdownButton<BaseCategory?>(
-                  value: _selectedCategory,
-                  items: [
-                    ...BaseCategory.values.map((BaseCategory category) {
-                      return DropdownMenuItem<BaseCategory>(
-                        value: category,
-                        child: Row(
-                          children: [
-                            Icon(categoryIcons[
-                                category]), // Додаємо іконку категорії
-                            const SizedBox(width: 8),
-                            Text(category.name.toUpperCase()),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    // Додаємо нові категорії
-                    ..._customCategories.map((Category category) {
-                      return DropdownMenuItem<BaseCategory>(
-                        value: BaseCategory.values.firstWhere(
-                            (e) => e.name == category.title.toLowerCase(),
-                            orElse: () => BaseCategory
-                                .food), // Використовуйте правильну логіку
-                        child: Text(category.title),
-                      );
-                    }).toList(),
-                    const DropdownMenuItem<BaseCategory?>(
-                      value: null,
-                      child: Row(
-                        children: [
-                          Icon(Icons.add),
-                          SizedBox(width: 8),
-                          Text('Add category'),
-                        ],
+                ElevatedButton(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (ctx) => Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: _buildCategorySelection(),
                       ),
-                    ),
-                  ],
-                  onChanged: (BaseCategory? newValue) {
-                    if (newValue == null) {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Create New Category'),
-                          content: AddCategoryForm(
-                            onAddCategory: _addCategory,
-                          ),
-                        ),
-                      );
-                    } else {
-                      setState(() {
-                        _selectedCategory =
-                            newValue; // Встановлюємо вибрану категорію
-                      });
-                    }
+                    );
                   },
+                  child: Text(
+                    _selectedCategory == null
+                        ? 'Select Category'
+                        : _selectedCategory!.name.toUpperCase(),
+                  ),
                 ),
               ],
             ),

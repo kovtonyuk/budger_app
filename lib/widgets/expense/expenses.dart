@@ -19,7 +19,7 @@ class _ExpensesState extends State<Expenses> {
     Expense(
         amount: 20.00,
         currency: Currency.usd,
-        category: BaseCategory.food,
+        category: Category(title: BaseCategory.food.name),
         account: Account.cash,
         date: DateTime.now(),
         place: 'place',
