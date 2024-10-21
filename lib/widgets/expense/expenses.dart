@@ -1,10 +1,10 @@
 import 'package:budget_app/helpers/widgets_helpers.dart';
 import 'package:budget_app/widgets/navigations/bottom_navigation.dart';
 import 'package:flutter/material.dart';
-import 'package:budget_app/widgets/expense/expenses_list/expenses_list.dart';
 import 'package:budget_app/models/expense.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:budget_app/models/category.dart';
+import 'package:intl/intl.dart';
 
 class Expenses extends StatefulWidget {
   const Expenses({super.key});
@@ -76,9 +76,112 @@ class _ExpensesState extends State<Expenses> {
     );
 
     if (_registeredExpenses.isNotEmpty) {
-      mainContent = ExpensesList(
-        expenses: _registeredExpenses,
-        onRemoveExpense: _removeExpense,
+      Map<String, Map<String, dynamic>> groupedExpenses =
+          groupExpensesByDate(_registeredExpenses);
+
+      mainContent = ListView.builder(
+        itemCount: groupedExpenses.keys.length,
+        itemBuilder: (ctx, index) {
+          String date = groupedExpenses.keys.elementAt(index);
+          // List<Expense> expensesByDate = groupedExpenses[date]!;
+          List<Expense> expensesByDate = groupedExpenses[date]!['expenses'];
+          double totalIncomeByDate = groupedExpenses[date]!['totalIncome'];
+          double totalOutcomeByDate = groupedExpenses[date]!['totalOutcome'];
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Відображення дати
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        DateFormat.MMMd().format(DateTime.parse(date)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          '\$${totalIncomeByDate.toStringAsFixed(2)}', // Доходи за цей день
+                          style: GoogleFonts.manrope(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 11,
+                              color: const Color(0xFF6D31ED)),
+                        ),
+                        const SizedBox(
+                          width: 16,
+                        ),
+                        Text(
+                          '\$${totalOutcomeByDate.toStringAsFixed(2)}', // Витрати за цей день
+                          style: GoogleFonts.manrope(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                            color: const Color.fromARGB(255, 237, 49, 49),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              ...expensesByDate.map((expense) {
+                Color color = setTypeColor(expense);
+                return Dismissible(
+                  key: Key(expense.id
+                      .toString()), // Унікальний ключ для кожної витрату
+                  direction: DismissDirection.endToStart, // Напрямок свайпу
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    child: const Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                    ),
+                  ),
+                  onDismissed: (direction) {
+                    // Викликаємо ваш метод видалення
+                    _removeExpense(expense);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ListTile(
+                        title: Text(
+                            style: GoogleFonts.manrope(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            expense.note),
+                        subtitle: Text(
+                            style: GoogleFonts.manrope(
+                                color: Colors.white, fontSize: 12),
+                            expense.category.title),
+                        trailing: Text(
+                            style: GoogleFonts.manrope(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
+                            '\$${expense.amount.toStringAsFixed(2)}'),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ],
+          );
+        },
       );
     }
 
@@ -97,22 +200,22 @@ class _ExpensesState extends State<Expenses> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                buildPeriodContainer(
+                buildPeriodContainerExpenses(
                     'Days', const Color(0xFF6D31ED), Colors.white),
                 const SizedBox(
                   width: 8,
                 ),
-                buildPeriodContainer(
+                buildPeriodContainerExpenses(
                     'Weekly', const Color(0xFFF5F1FE), const Color(0xFF6D31ED)),
                 const SizedBox(
                   width: 8,
                 ),
-                buildPeriodContainer('Monthly', const Color(0xFFF5F1FE),
+                buildPeriodContainerExpenses('Monthly', const Color(0xFFF5F1FE),
                     const Color(0xFF6D31ED)),
                 const SizedBox(
                   width: 8,
                 ),
-                buildPeriodContainer(
+                buildPeriodContainerExpenses(
                     'Year', const Color(0xFFF5F1FE), const Color(0xFF6D31ED)),
               ],
             ),

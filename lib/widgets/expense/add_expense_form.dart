@@ -22,12 +22,13 @@ class _AddExpenseForm extends State<AddExpenseForm> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   final _placeController = TextEditingController();
-  final Type _typeController = Type.income;
+  // final Type _typeController = Type.income;
   DateTime? _selectedDate;
-  Category? _selectedCategory; // Зміна на nullable
+  Category? _selectedCategory;
   Currency _selectedCurrency = Currency.usd;
   final Account _selectedAccount = Account.card;
   final _formKey = GlobalKey<FormState>();
+  Type _selectedType = Type.income;
 
   // final List<Category> _customCategories =
   //     []; // Зберігаємо категорії, створені користувачем
@@ -49,27 +50,17 @@ class _AddExpenseForm extends State<AddExpenseForm> {
     if (_formKey.currentState!.validate()) {
       final enteredAmount = double.tryParse(_amountController.text);
       if (enteredAmount == null || enteredAmount <= 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter a valid amount')),
-        );
         return;
       }
 
-      if (_selectedDate == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a date')),
-        );
-        return;
-      }
-
-      // Використовуємо _selectedCategory з перевіркою на null
+      //Використовуємо _selectedCategory з перевіркою на null
       final category = _selectedCategory ??
           Category(
               title: BaseCategory.food
                   .name); // Використовуємо базову категорію за замовчуванням
 
       widget.onAddExpense(Expense(
-        type: _typeController,
+        type: _selectedType,
         amount: enteredAmount,
         currency: _selectedCurrency,
         category: category,
@@ -103,6 +94,17 @@ class _AddExpenseForm extends State<AddExpenseForm> {
     );
   }
 
+  // Method to handle type changes
+  void _onTypeChanged(Type? newType) {
+    // Change to accept Type?
+    if (newType != null) {
+      // Check for null
+      setState(() {
+        _selectedType = newType;
+      });
+    }
+  }
+
   @override
   void dispose() {
     _noteController.dispose();
@@ -129,12 +131,24 @@ class _AddExpenseForm extends State<AddExpenseForm> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 buildPeriodContainer(
-                    'Income', const Color(0xFF6D31ED), Colors.white),
+                  'Income',
+                  const Color(0xFF6D31ED),
+                  const Color(0xFFF5F1FE),
+                  Type.income,
+                  _selectedType,
+                  _onTypeChanged, // Pass the updated method
+                ),
                 const SizedBox(
                   width: 8,
                 ),
-                buildPeriodContainer('Outcome', const Color(0xFFF5F1FE),
-                    const Color(0xFF6D31ED)),
+                buildPeriodContainer(
+                  'Outcome',
+                  const Color(0xFF6D31ED),
+                  const Color(0xFFF5F1FE),
+                  Type.outcome,
+                  _selectedType,
+                  _onTypeChanged, // Pass the updated method
+                ),
               ],
             ),
           ),
