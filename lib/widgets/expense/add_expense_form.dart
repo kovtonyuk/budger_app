@@ -1,10 +1,14 @@
-import 'package:budget_app/widgets/category/add_category_form.dart';
+import 'package:budget_app/widgets/category/categories.dart';
+import 'package:budget_app/helpers/widgets_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_app/models/expense.dart';
 import 'package:budget_app/models/category.dart';
 
 class AddExpenseForm extends StatefulWidget {
-  const AddExpenseForm({super.key, required this.onAddExpense});
+  const AddExpenseForm({
+    super.key,
+    required this.onAddExpense,
+  });
 
   final void Function(Expense expense) onAddExpense;
 
@@ -18,14 +22,15 @@ class _AddExpenseForm extends State<AddExpenseForm> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   final _placeController = TextEditingController();
+  final Type _typeController = Type.income;
   DateTime? _selectedDate;
   Category? _selectedCategory; // Зміна на nullable
   Currency _selectedCurrency = Currency.usd;
-  Account _selectedAccount = Account.card;
+  final Account _selectedAccount = Account.card;
   final _formKey = GlobalKey<FormState>();
 
-  final List<Category> _customCategories =
-      []; // Зберігаємо категорії, створені користувачем
+  // final List<Category> _customCategories =
+  //     []; // Зберігаємо категорії, створені користувачем
 
   void _presentDatePicker() async {
     final now = DateTime.now();
@@ -64,6 +69,7 @@ class _AddExpenseForm extends State<AddExpenseForm> {
                   .name); // Використовуємо базову категорію за замовчуванням
 
       widget.onAddExpense(Expense(
+        type: _typeController,
         amount: enteredAmount,
         currency: _selectedCurrency,
         category: category,
@@ -87,13 +93,14 @@ class _AddExpenseForm extends State<AddExpenseForm> {
     }
   }
 
-  void _addCategory(Category newCategory) {
-    setState(() {
-      _customCategories.add(newCategory);
-      _selectedCategory = newCategory; // Призначте нову категорію як вибрану
-      print(
-          'Categories after addition: ${_customCategories.map((c) => c.title).toList()}');
-    });
+  // Відкриття сторінки з категоріями
+  void _openCategoriesPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const Categories(),
+      ),
+    );
   }
 
   @override
@@ -104,211 +111,167 @@ class _AddExpenseForm extends State<AddExpenseForm> {
     super.dispose();
   }
 
-  Widget _buildCategorySelection() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ListView.builder(
-        itemCount: BaseCategory.values.length + _customCategories.length + 1,
-        itemBuilder: (context, index) {
-          if (index < BaseCategory.values.length) {
-            final category = BaseCategory.values[index];
-            return ListTile(
-              leading: Icon(categoryIcons[category]),
-              title: Text(category.name.toUpperCase()),
-              onTap: () {
-                setState(() {
-                  // Переконайтеся, що ви створюєте нову Category з BaseCategory
-                  _selectedCategory = Category(title: category.name);
-                });
-                Navigator.pop(context);
-              },
-            );
-          } else if (index <
-              BaseCategory.values.length + _customCategories.length) {
-            final customCategory =
-                _customCategories[index - BaseCategory.values.length];
-            return ListTile(
-              title: Text(customCategory.title),
-              onTap: () {
-                setState(() {
-                  _selectedCategory = customCategory;
-                });
-                Navigator.pop(context);
-              },
-            );
-          } else {
-            return ListTile(
-              leading: const Icon(Icons.add),
-              title: const Text('Add Category'),
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (BuildContext ctx) {
-                    return StatefulBuilder(
-                      builder: (BuildContext context, StateSetter setState) {
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: AddCategoryForm(
-                            onAddCategory: (newCategory) {
-                              _addCategory(newCategory);
-                              Navigator.pop(ctx);
-                            },
-                            existingCategories:
-                                _customCategories.map((c) => c.title).toList(),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-            );
-          }
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
-        child: Column(
-          children: [
-            Row(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Add expense"),
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert))
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _amountController,
-                    maxLength: 30,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: 'Amount',
-                      prefixText: '${_selectedCurrency.name.toUpperCase()} ',
-                    ),
+                buildPeriodContainer(
+                    'Income', const Color(0xFF6D31ED), Colors.white),
+                const SizedBox(
+                  width: 8,
+                ),
+                buildPeriodContainer('Outcome', const Color(0xFFF5F1FE),
+                    const Color(0xFF6D31ED)),
+              ],
+            ),
+          ),
+          Form(
+            key: _formKey,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _amountController,
+                          maxLength: 30,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Amount',
+                            prefixText:
+                                '${_selectedCurrency.name.toUpperCase()} ',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter an amount';
+                            }
+                            if (double.tryParse(value) == null ||
+                                double.parse(value) <= 0) {
+                              return 'Please enter a valid amount';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      DropdownButton<Currency>(
+                        value: _selectedCurrency,
+                        items: Currency.values.map((Currency currency) {
+                          return DropdownMenuItem<Currency>(
+                            value: currency,
+                            child: Text(currency.name.toUpperCase()),
+                          );
+                        }).toList(),
+                        onChanged: (Currency? newValue) {
+                          setState(() {
+                            _selectedCurrency = newValue!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Category:'),
+                      ElevatedButton(
+                        onPressed: _openCategoriesPage,
+                        child: Text(
+                          _selectedCategory == null
+                              ? 'Select Category'
+                              : _selectedCategory!.name.toUpperCase(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  FormField<DateTime>(
+                    validator: (value) {
+                      if (_selectedDate == null) {
+                        return 'Please select a date';
+                      }
+                      return null;
+                    },
+                    builder: (FormFieldState<DateTime> field) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                _selectedDate == null
+                                    ? 'No date selected'
+                                    : _selectedDate!.toString(),
+                                style: TextStyle(
+                                  color: field.hasError
+                                      ? const Color.fromRGBO(178, 40, 30, 1)
+                                      : Colors.black,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: _presentDatePicker,
+                                icon: const Icon(Icons.calendar_month),
+                              ),
+                            ],
+                          ),
+                          if (field.hasError)
+                            Text(
+                              field.errorText!,
+                              style: const TextStyle(
+                                  color: Color.fromRGBO(178, 40, 30, 1)),
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _noteController,
+                    decoration: const InputDecoration(labelText: 'Note'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter an amount';
-                      }
-                      if (double.tryParse(value) == null ||
-                          double.parse(value) <= 0) {
-                        return 'Please enter a valid amount';
+                        return 'Please enter a note';
                       }
                       return null;
                     },
                   ),
-                ),
-                const SizedBox(width: 20),
-                DropdownButton<Currency>(
-                  value: _selectedCurrency,
-                  items: Currency.values.map((Currency currency) {
-                    return DropdownMenuItem<Currency>(
-                      value: currency,
-                      child: Text(currency.name.toUpperCase()),
-                    );
-                  }).toList(),
-                  onChanged: (Currency? newValue) {
-                    setState(() {
-                      _selectedCurrency = newValue!;
-                    });
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Category:'),
-                ElevatedButton(
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (ctx) => Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: _buildCategorySelection(),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Cancel'),
                       ),
-                    );
-                  },
-                  child: Text(
-                    _selectedCategory == null
-                        ? 'Select Category'
-                        : _selectedCategory!.name.toUpperCase(),
+                      ElevatedButton(
+                        onPressed: _submitForm,
+                        child: const Text('Save Expense'),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-            FormField<DateTime>(
-              validator: (value) {
-                if (_selectedDate == null) {
-                  return 'Please select a date';
-                }
-                return null;
-              },
-              builder: (FormFieldState<DateTime> field) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          _selectedDate == null
-                              ? 'No date selected'
-                              : _selectedDate!.toString(),
-                          style: TextStyle(
-                            color: field.hasError
-                                ? const Color.fromRGBO(178, 40, 30, 1)
-                                : Colors.black,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: _presentDatePicker,
-                          icon: const Icon(Icons.calendar_month),
-                        ),
-                      ],
-                    ),
-                    if (field.hasError)
-                      Text(
-                        field.errorText!,
-                        style: const TextStyle(
-                            color: Color.fromRGBO(178, 40, 30, 1)),
-                      ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _noteController,
-              decoration: const InputDecoration(labelText: 'Note'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a note';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  child: const Text('Save Expense'),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

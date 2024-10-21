@@ -11,13 +11,21 @@ enum Currency { usd, eur, uah }
 
 enum Account { card, cash }
 
+enum Type { income, outcome }
+
 const accountIcons = {
   Account.card: Icons.credit_card,
   Account.cash: Icons.monetization_on_outlined,
 };
 
+const typeColor = {
+  Type.income: Color(0xFF6D31ED),
+  Type.outcome: Color.fromARGB(255, 237, 49, 49),
+};
+
 class Expense {
   Expense({
+    required this.type,
     required this.amount,
     required this.currency,
     required this.category,
@@ -27,6 +35,7 @@ class Expense {
     required this.place,
   }) : id = uuid.v4();
 
+  final Type type;
   final double amount;
   final Currency currency;
   final Category category;

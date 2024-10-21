@@ -1,3 +1,4 @@
+import 'package:budget_app/helpers/widgets_helpers.dart';
 import 'package:budget_app/widgets/navigations/bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_app/widgets/expense/expenses_list/expenses_list.dart';
@@ -17,6 +18,7 @@ class Expenses extends StatefulWidget {
 class _ExpensesState extends State<Expenses> {
   final List<Expense> _registeredExpenses = [
     Expense(
+        type: Type.income,
         amount: 20.00,
         currency: Currency.usd,
         category: Category(title: BaseCategory.food.name),
@@ -53,12 +55,22 @@ class _ExpensesState extends State<Expenses> {
     );
   }
 
+  double get totalIncome {
+    return _registeredExpenses
+        .where((expense) => expense.type == Type.income)
+        .fold(0.0, (sum, item) => sum + item.amount);
+  }
+
+  double get totalOutcome {
+    return _registeredExpenses
+        .where((expense) => expense.type == Type.outcome)
+        .fold(0.0, (sum, item) => sum + item.amount);
+  }
+
+  double get total => totalIncome - totalOutcome;
+
   @override
   Widget build(BuildContext context) {
-    const income = 1000.00;
-    const outcome = 359.00;
-    const total = income - outcome;
-
     Widget mainContent = const Center(
       child: Text('No data found'),
     );
@@ -85,22 +97,22 @@ class _ExpensesState extends State<Expenses> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildPeriodContainer(
+                buildPeriodContainer(
                     'Days', const Color(0xFF6D31ED), Colors.white),
                 const SizedBox(
                   width: 8,
                 ),
-                _buildPeriodContainer(
+                buildPeriodContainer(
                     'Weekly', const Color(0xFFF5F1FE), const Color(0xFF6D31ED)),
                 const SizedBox(
                   width: 8,
                 ),
-                _buildPeriodContainer('Monthly', const Color(0xFFF5F1FE),
+                buildPeriodContainer('Monthly', const Color(0xFFF5F1FE),
                     const Color(0xFF6D31ED)),
                 const SizedBox(
                   width: 8,
                 ),
-                _buildPeriodContainer(
+                buildPeriodContainer(
                     'Year', const Color(0xFFF5F1FE), const Color(0xFF6D31ED)),
               ],
             ),
@@ -114,19 +126,19 @@ class _ExpensesState extends State<Expenses> {
                   children: [
                     const Text('Income'),
                     Text(
-                      income.toString(),
+                      '\$${totalIncome.toStringAsFixed(2)}', // Використовуємо totalIncome
                       style: GoogleFonts.manrope(
                           fontWeight: FontWeight.bold,
                           fontSize: 11,
                           color: const Color(0xFF6D31ED)),
-                    )
+                    ),
                   ],
                 ),
                 Column(
                   children: [
-                    const Text('Costs'),
+                    const Text('Outcome'),
                     Text(
-                      outcome.toString(),
+                      '\$${totalOutcome.toStringAsFixed(2)}', // Використовуємо totalOutcome
                       style: GoogleFonts.manrope(
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
@@ -139,7 +151,7 @@ class _ExpensesState extends State<Expenses> {
                   children: [
                     const Text('Total'),
                     Text(
-                      total.toString(),
+                      '\$${total.toStringAsFixed(2)}', // Використовуємо total
                       style: GoogleFonts.manrope(
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
@@ -157,28 +169,6 @@ class _ExpensesState extends State<Expenses> {
         ],
       ),
       bottomNavigationBar: BottomNavigation(onAddExpense: _addExpense),
-    );
-  }
-
-  Widget _buildPeriodContainer(
-      String label, Color backgroundColor, Color textColor) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(8), // Заокруглені краї
-        ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            fontWeight: FontWeight.bold,
-            fontSize: 11,
-            color: textColor,
-          ),
-        ),
-      ),
     );
   }
 }

@@ -15,44 +15,43 @@ class _CategoriesState extends State<Categories> {
   final List<Category> _registeredCategories = [
     Category(
       title: 'Test',
-      //category: BaseCategory.food,
     ),
   ];
-
-  void _openCreateCategoryForm() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Create New Category'),
-        content: TextField(
-          decoration: const InputDecoration(labelText: 'Category name'),
-          onSubmitted: (value) {
-            Navigator.pop(ctx);
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-            },
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _addCategory(Category category) {
     setState(() {
       _registeredCategories.add(category);
     });
   }
+
+  // void _openCreateCategoryForm() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => AlertDialog(
+  //       title: const Text('Create New Category'),
+  //       content: TextField(
+  //         decoration: const InputDecoration(labelText: 'Category name'),
+  //         onSubmitted: (value) {
+  //           Navigator.pop(ctx);
+  //         },
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () {
+  //             Navigator.pop(ctx);
+  //           },
+  //           child: const Text('Cancel'),
+  //         ),
+  //         ElevatedButton(
+  //           onPressed: () {
+  //             Navigator.pop(ctx);
+  //           },
+  //           child: const Text('Save'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   void _removeCategory(Category category) {
     final categoryIndex = _registeredCategories.indexOf(category);
@@ -94,7 +93,8 @@ class _CategoriesState extends State<Categories> {
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
           IconButton(
-            onPressed: _openCreateCategoryForm,
+            // onPressed: _openCreateCategoryForm,
+            onPressed: () {},
             icon: const Icon(Icons.add),
           ),
         ],

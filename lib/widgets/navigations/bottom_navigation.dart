@@ -23,10 +23,16 @@ class _BottomNavigationState extends State<BottomNavigation> {
   }
 
   void _openAddExpenseOverlay() {
-    showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (ctx) => AddExpenseForm(onAddExpense: widget.onAddExpense));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddExpenseForm(onAddExpense: widget.onAddExpense),
+      ),
+    );
+    // showModalBottomSheet(
+    //     isScrollControlled: true,
+    //     context: context,
+    //     builder: (ctx) => AddExpenseForm(onAddExpense: widget.onAddExpense));
   }
 
   @override
