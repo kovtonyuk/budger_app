@@ -7,18 +7,9 @@ final formatter = DateFormat.yMMMMEEEEd();
 
 const uuid = Uuid();
 
-// enum Category { food, travel, leisure, work }
-
 enum Currency { usd, eur, uah }
 
 enum Account { card, cash }
-
-// const categoryIcons = {
-//   Category.food: Icons.lunch_dining,
-//   Category.travel: Icons.flight_takeoff,
-//   Category.leisure: Icons.movie,
-//   Category.work: Icons.work,
-// };
 
 const accountIcons = {
   Account.card: Icons.credit_card,

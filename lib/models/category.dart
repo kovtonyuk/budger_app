@@ -20,5 +20,5 @@ class Category {
   final String title;
   final String id;
 
-  String get name => title; // Додайте цей геттер
+  String get name => title;
 }
