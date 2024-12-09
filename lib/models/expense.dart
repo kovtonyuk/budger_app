@@ -13,15 +13,21 @@ enum Account { card, cash }
 
 enum Type { income, outcome }
 
+enum Period { day, weekly, monthly, year }
+
 const accountIcons = {
   Account.card: Icons.credit_card,
   Account.cash: Icons.monetization_on_outlined,
 };
 
-const typeColor = {
-  Type.income: Color(0xFF6D31ED),
-  Type.outcome: Color.fromARGB(255, 237, 49, 49),
-};
+Color getTypeColor(BuildContext context, Type type) {
+  final colorScheme = Theme.of(context).colorScheme;
+  if (type == Type.income) {
+    return colorScheme.primary;
+  } else {
+    return colorScheme.error;
+  }
+}
 
 class Expense {
   Expense({

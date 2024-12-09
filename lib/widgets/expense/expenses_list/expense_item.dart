@@ -1,5 +1,5 @@
-import 'package:budget_app/models/expense.dart';
 import 'package:flutter/material.dart';
+import 'package:budget_app/models/expense.dart';
 import 'package:budget_app/models/category.dart';
 
 class ExpenseItem extends StatelessWidget {
@@ -7,18 +7,18 @@ class ExpenseItem extends StatelessWidget {
 
   final Expense expense;
 
-  // Функція для визначення кольору на основі типу витрати
-  Color _setTypeColor() {
-    return expense.type == Type.income
-        ? typeColor[Type.income]!
-        : typeColor[Type.outcome]!;
+  BaseCategory? _getBaseCategoryFromTitle(String title) {
+    try {
+      return BaseCategory.values
+          .firstWhere((category) => category.name == title);
+    } catch (e) {
+      return null; // Return null if category not found
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Викликаємо функцію для отримання кольору перед рендерингом
-    final color = _setTypeColor();
-    const colorText = TextStyle(color: Color.fromARGB(255, 255, 255, 255));
+    final color = getTypeColor(context, expense.type);
 
     return Card(
       child: Container(
@@ -26,43 +26,66 @@ class ExpenseItem extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            children: [
-              Text(style: colorText, expense.note),
-              const SizedBox(
-                height: 4,
-              ),
-              Row(
-                children: [
-                  Text(
-                    style: colorText,
-                    expense.type.name,
-                  ),
-                  const Spacer(),
-                  Text(
-                      style: colorText,
-                      '\$${expense.amount.toStringAsFixed(2)}'),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Icon(categoryIcons[expense.category]),
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      Text(
-                        style: colorText,
-                        expense.formattedDate,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              title: _buildTitle(context),
+              subtitle: _buildSubtitle(context),
+              trailing: _buildTrailing(context),
+            ),
+          ],
         ),
       ),
+    );
+  }
+
+  Row _buildTitle(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          categoryIcons[_getBaseCategoryFromTitle(expense.category.title)] ??
+              Icons.help_outline,
+          color: Colors.white,
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            expense.category.title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Padding _buildSubtitle(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Row(
+        children: [
+          const SizedBox(width: 32),
+          Expanded(
+            child: Text(
+              expense.note,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Text _buildTrailing(BuildContext context) {
+    return Text(
+      '\$${expense.amount.toStringAsFixed(2)}',
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color: Colors.white,
+          ),
     );
   }
 }

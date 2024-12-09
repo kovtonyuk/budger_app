@@ -29,10 +29,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
         builder: (context) => AddExpenseForm(onAddExpense: widget.onAddExpense),
       ),
     );
-    // showModalBottomSheet(
-    //     isScrollControlled: true,
-    //     context: context,
-    //     builder: (ctx) => AddExpenseForm(onAddExpense: widget.onAddExpense));
   }
 
   @override

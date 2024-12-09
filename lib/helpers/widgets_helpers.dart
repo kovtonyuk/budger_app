@@ -40,22 +40,78 @@ Widget buildPeriodContainer(
   );
 }
 
-Widget buildPeriodContainerExpenses(
-    String label, Color backgroundColor, Color textColor) {
+Widget filterPeriodContainer(
+  String label,
+  Color backgroundColor,
+  Color textColor,
+  Period period,
+  Period selectedFilter,
+  ValueChanged<Period?> onChanged,
+) {
   return Expanded(
-    child: Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(8), // Заокруглені краї
+    child: GestureDetector(
+      onTap: () => onChanged(period), // Передайте тип при натисканні
+      child: Container(
+        width: 70,
+        height: 40,
+        decoration: BoxDecoration(
+            color: selectedFilter == period
+                ? backgroundColor
+                : const Color(0xFFF5F1FE),
+            borderRadius: BorderRadius.circular(8), // Заокруглені краї
+            border: Border.all(color: const Color(0xFF6D31ED), width: 2)),
+        child: Center(
+          // Вирівнюємо текст по центру
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.manrope(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: selectedFilter == period
+                  ? textColor
+                  : const Color(0xFF6D31ED),
+            ),
+          ),
+        ),
       ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: GoogleFonts.manrope(
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-          color: textColor,
+    ),
+  );
+}
+
+Widget filterAmountPeriodContainer(
+  String label,
+  Color backgroundColor,
+  Color textColor,
+  Period period,
+  Period selectedFilter,
+  ValueChanged<Period?> onChanged,
+) {
+  return Expanded(
+    child: GestureDetector(
+      onTap: () => onChanged(period), // Передайте тип при натисканні
+      child: Container(
+        width: 70,
+        height: 40,
+        decoration: BoxDecoration(
+            color: selectedFilter == period
+                ? backgroundColor
+                : const Color(0xFFF5F1FE),
+            borderRadius: BorderRadius.circular(8), // Заокруглені краї
+            border: Border.all(color: const Color(0xFF6D31ED), width: 2)),
+        child: Center(
+          // Вирівнюємо текст по центру
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.manrope(
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+              color: selectedFilter == period
+                  ? textColor
+                  : const Color(0xFF6D31ED),
+            ),
+          ),
         ),
       ),
     ),
@@ -89,8 +145,8 @@ Map<String, Map<String, dynamic>> groupExpensesByDate(List<Expense> expenses) {
 }
 
 // Функція для визначення кольору на основі типу витрати
-Color setTypeColor(Expense expense) {
-  return expense.type == Type.income
-      ? typeColor[Type.income]!
-      : typeColor[Type.outcome]!;
-}
+// Color setTypeColor(Expense expense) {
+//   return expense.type == Type.income
+//       ? typeColor[Type.income]!
+//       : typeColor[Type.outcome]!;
+// }
