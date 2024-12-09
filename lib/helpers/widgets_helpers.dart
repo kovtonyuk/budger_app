@@ -145,8 +145,7 @@ Map<String, Map<String, dynamic>> groupExpensesByDate(List<Expense> expenses) {
 }
 
 // Функція для визначення кольору на основі типу витрати
-// Color setTypeColor(Expense expense) {
-//   return expense.type == Type.income
-//       ? typeColor[Type.income]!
-//       : typeColor[Type.outcome]!;
-// }
+Color getTypeColor(BuildContext context, Type type) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return type == Type.income ? colorScheme.primary : colorScheme.error;
+}

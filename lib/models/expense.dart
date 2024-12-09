@@ -20,15 +20,6 @@ const accountIcons = {
   Account.cash: Icons.monetization_on_outlined,
 };
 
-Color getTypeColor(BuildContext context, Type type) {
-  final colorScheme = Theme.of(context).colorScheme;
-  if (type == Type.income) {
-    return colorScheme.primary;
-  } else {
-    return colorScheme.error;
-  }
-}
-
 class Expense {
   Expense({
     required this.type,

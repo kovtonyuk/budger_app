@@ -38,24 +38,24 @@ class _BottomNavigationState extends State<BottomNavigation> {
         const BottomNavigationBarItem(
           icon: Icon(
             Icons.dashboard_customize,
-            size: 20,
+            size: 24,
           ),
           label: 'Dashboard',
         ),
         const BottomNavigationBarItem(
           icon: Icon(
             Icons.bar_chart,
-            size: 20,
+            size: 24,
           ),
           label: 'Reports',
         ),
         BottomNavigationBarItem(
           icon: GestureDetector(
             onTap: _openAddExpenseOverlay,
-            child: const Icon(
+            child: Icon(
               Icons.add_circle,
               size: 42,
-              color: Color(0xFF6D31ED),
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           label: '',
@@ -63,22 +63,22 @@ class _BottomNavigationState extends State<BottomNavigation> {
         const BottomNavigationBarItem(
           icon: Icon(
             Icons.wallet,
-            size: 20,
+            size: 24,
           ),
           label: 'Budgets',
         ),
         const BottomNavigationBarItem(
           icon: Icon(
             Icons.settings,
-            size: 20,
+            size: 24,
           ),
           label: 'Settings',
         ),
       ],
       currentIndex: _selectedIndex,
-      selectedItemColor: const Color(0xFF6D31ED),
-      unselectedItemColor: const Color(0xFF565D6D),
-      backgroundColor: Colors.white,
+      selectedItemColor: Theme.of(context).colorScheme.primary,
+      unselectedItemColor: Theme.of(context).colorScheme.secondary,
+      backgroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
       selectedFontSize: 10,
       unselectedFontSize: 10,
       type: BottomNavigationBarType.fixed,

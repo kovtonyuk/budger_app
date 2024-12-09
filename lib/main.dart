@@ -6,7 +6,10 @@ void main() {
     primary: Color(0xFF6D31ED),
     onPrimary: Colors.white,
     primaryContainer: Color(0xFF9C66F2),
+    onPrimaryContainer: Colors.white,
+    secondary: Color(0xFF565D6D),
     error: Color(0xFFED3131),
+    onError: Colors.white,
   );
 
   runApp(
@@ -15,7 +18,7 @@ void main() {
         useMaterial3: true,
         colorScheme: kColorScheme,
         cardTheme: CardTheme(
-          color: kColorScheme.onPrimaryContainer,
+          color: kColorScheme.primaryContainer,
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
@@ -26,15 +29,16 @@ void main() {
         textTheme: ThemeData().textTheme.copyWith(
               titleLarge: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: kColorScheme.primaryContainer,
+                color: kColorScheme.onPrimary,
                 fontSize: 18,
               ),
               titleMedium: TextStyle(
                 fontWeight: FontWeight.normal,
-                color: kColorScheme.primaryContainer,
+                color: kColorScheme.onPrimaryContainer,
                 fontSize: 14,
               ),
             ),
+        iconTheme: IconThemeData(color: kColorScheme.onPrimary),
       ),
       home: const Expenses(),
     ),
