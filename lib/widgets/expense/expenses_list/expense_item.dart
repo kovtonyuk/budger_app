@@ -47,14 +47,14 @@ class ExpenseItem extends StatelessWidget {
         Icon(
           categoryIcons[_getBaseCategoryFromTitle(expense.category.title)] ??
               Icons.help_outline,
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             expense.category.title,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                 ),
           ),
         ),
@@ -72,7 +72,7 @@ class ExpenseItem extends StatelessWidget {
             child: Text(
               expense.note,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                   ),
             ),
           ),
@@ -85,7 +85,7 @@ class ExpenseItem extends StatelessWidget {
     return Text(
       '\$${expense.amount.toStringAsFixed(2)}',
       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onPrimaryContainer,
           ),
     );
   }

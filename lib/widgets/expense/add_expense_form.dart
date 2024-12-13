@@ -132,8 +132,10 @@ class _AddExpenseForm extends State<AddExpenseForm> {
               children: [
                 buildPeriodContainer(
                   'Income',
-                  const Color(0xFF6D31ED),
-                  const Color(0xFFF5F1FE),
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.tertiary,
+                  //const Color.fromARGB(255, 34, 173, 18),
+                  //const Color(0xFFF5F1FE),
                   Type.income,
                   _selectedType,
                   _onTypeChanged, // Pass the updated method
@@ -143,8 +145,8 @@ class _AddExpenseForm extends State<AddExpenseForm> {
                 ),
                 buildPeriodContainer(
                   'Outcome',
-                  const Color(0xFF6D31ED),
-                  const Color(0xFFF5F1FE),
+                  Theme.of(context).colorScheme.primary,
+                  Theme.of(context).colorScheme.tertiary,
                   Type.outcome,
                   _selectedType,
                   _onTypeChanged, // Pass the updated method
@@ -234,8 +236,10 @@ class _AddExpenseForm extends State<AddExpenseForm> {
                                     : _selectedDate!.toString(),
                                 style: TextStyle(
                                   color: field.hasError
-                                      ? const Color.fromRGBO(178, 40, 30, 1)
-                                      : Colors.black,
+                                      ? Theme.of(context).colorScheme.error
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .tertiaryContainer,
                                 ),
                               ),
                               IconButton(
@@ -247,8 +251,8 @@ class _AddExpenseForm extends State<AddExpenseForm> {
                           if (field.hasError)
                             Text(
                               field.errorText!,
-                              style: const TextStyle(
-                                  color: Color.fromRGBO(178, 40, 30, 1)),
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error),
                             ),
                         ],
                       );

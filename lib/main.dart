@@ -8,6 +8,8 @@ void main() {
     primaryContainer: Color(0xFF9C66F2),
     onPrimaryContainer: Colors.white,
     secondary: Color(0xFF565D6D),
+    tertiary: Color(0xFFF5F1FE),
+    tertiaryContainer: Color.fromARGB(255, 0, 0, 0),
     error: Color(0xFFED3131),
     onError: Colors.white,
   );
@@ -36,6 +38,11 @@ void main() {
                 fontWeight: FontWeight.normal,
                 color: kColorScheme.onPrimaryContainer,
                 fontSize: 14,
+              ),
+              titleSmall: TextStyle(
+                fontWeight: FontWeight.normal,
+                color: kColorScheme.onPrimaryContainer,
+                fontSize: 12,
               ),
             ),
         iconTheme: IconThemeData(color: kColorScheme.onPrimary),

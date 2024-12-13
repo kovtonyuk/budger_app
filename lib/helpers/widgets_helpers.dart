@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+//using on add expense page
 Widget buildPeriodContainer(
   String label,
   Color backgroundColor,
@@ -40,7 +41,9 @@ Widget buildPeriodContainer(
   );
 }
 
+//using on Expenses page
 Widget filterPeriodContainer(
+  BuildContext context,
   String label,
   Color backgroundColor,
   Color textColor,
@@ -50,28 +53,32 @@ Widget filterPeriodContainer(
 ) {
   return Expanded(
     child: GestureDetector(
-      onTap: () => onChanged(period), // Передайте тип при натисканні
-      child: Container(
-        width: 70,
-        height: 40,
-        decoration: BoxDecoration(
-            color: selectedFilter == period
-                ? backgroundColor
-                : const Color(0xFFF5F1FE),
-            borderRadius: BorderRadius.circular(8), // Заокруглені краї
-            border: Border.all(color: const Color(0xFF6D31ED), width: 2)),
-        child: Center(
-          // Вирівнюємо текст по центру
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
+      onTap: () => onChanged(period),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Container(
+          width: 80,
+          height: 28,
+          decoration: BoxDecoration(
               color: selectedFilter == period
-                  ? textColor
-                  : const Color(0xFF6D31ED),
-            ),
+                  ? backgroundColor
+                  : Theme.of(context).colorScheme.tertiary,
+              borderRadius: BorderRadius.circular(8)),
+          child: Row(
+            children: [
+              const Icon(Icons.abc),
+              Center(
+                child: Text(
+                  capitalizeEnumValue(period),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: selectedFilter == period
+                            ? textColor
+                            : Theme.of(context).colorScheme.primary,
+                      ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -126,7 +133,7 @@ Map<String, Map<String, dynamic>> groupExpensesByDate(List<Expense> expenses) {
 
     if (!groupedExpenses.containsKey(formattedDate)) {
       groupedExpenses[formattedDate] = {
-        'expenses': <Expense>[], // Ініціалізуємо список витрат як List<Expense>
+        'expenses': <Expense>[],
         'totalIncome': 0.0,
         'totalOutcome': 0.0,
       };
@@ -148,4 +155,48 @@ Map<String, Map<String, dynamic>> groupExpensesByDate(List<Expense> expenses) {
 Color getTypeColor(BuildContext context, Type type) {
   final colorScheme = Theme.of(context).colorScheme;
   return type == Type.income ? colorScheme.primary : colorScheme.error;
+}
+
+double calculateTotal(Type type, registeredExpenses, dynamic selectedFilter) {
+  final filteredExpenses = filterExpenses(registeredExpenses, selectedFilter);
+  return filteredExpenses
+      .where((expense) => expense.type == type)
+      .fold(0.0, (sum, item) => sum + item.amount);
+}
+
+List<Expense> filterExpenses(List<Expense> expenses, selectedFilter) {
+  final now = DateTime.now();
+  switch (selectedFilter) {
+    case Period.day:
+      return expenses.where((expense) {
+        return expense.date.day == now.day &&
+            expense.date.month == now.month &&
+            expense.date.year == now.year;
+      }).toList();
+    case Period.monthly:
+      return expenses.where((expense) {
+        return expense.date.month == now.month && expense.date.year == now.year;
+      }).toList();
+    case Period.weekly:
+      final startOfWeek = now.subtract(Duration(days: now.weekday));
+      final endOfWeek = startOfWeek.add(const Duration(days: 7));
+      return expenses.where((expense) {
+        return (expense.date.isAfter(startOfWeek) ||
+                expense.date.isAtSameMomentAs(startOfWeek)) &&
+            (expense.date.isBefore(endOfWeek.add(Duration(days: 1))) ||
+                expense.date.isAtSameMomentAs(endOfWeek));
+      }).toList();
+    case Period.year:
+      return expenses.where((expense) {
+        return expense.date.year == now.year;
+      }).toList();
+    default:
+      return expenses;
+  }
+}
+
+// Функція для переведення значення enum в "Capitalize"
+String capitalizeEnumValue(Enum enumValue) {
+  String text = enumValue.toString().split('.').last;
+  return text[0].toUpperCase() + text.substring(1).toLowerCase();
 }

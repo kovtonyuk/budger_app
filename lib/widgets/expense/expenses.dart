@@ -3,7 +3,6 @@ import 'package:budget_app/widgets/expense/expenses_list/expenses_list.dart';
 import 'package:budget_app/widgets/navigations/bottom_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_app/models/expense.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:budget_app/models/category.dart';
 
 class Expenses extends StatefulWidget {
@@ -26,7 +25,7 @@ class _ExpensesState extends State<Expenses> {
         note: 'Pizza'),
   ];
 
-  Period _selectedFilter = Period.weekly;
+  Period selectedFilter = Period.weekly;
 
   void _addExpense(Expense expense) {
     setState(() {
@@ -58,61 +57,38 @@ class _ExpensesState extends State<Expenses> {
   void _onPeriodChanged(Period? newFilter) {
     if (newFilter != null) {
       setState(() {
-        _selectedFilter = newFilter;
+        selectedFilter = newFilter;
       });
-    }
-  }
-
-  double _calculateTotal(Type type) {
-    final filteredExpenses = _filterExpenses(_registeredExpenses);
-    return filteredExpenses
-        .where((expense) => expense.type == type)
-        .fold(0.0, (sum, item) => sum + item.amount);
-  }
-
-  List<Expense> _filterExpenses(List<Expense> expenses) {
-    final now = DateTime.now();
-    switch (_selectedFilter) {
-      case Period.day:
-        return expenses.where((expense) {
-          return expense.date.day == now.day &&
-              expense.date.month == now.month &&
-              expense.date.year == now.year;
-        }).toList();
-      case Period.monthly:
-        return expenses.where((expense) {
-          return expense.date.month == now.month &&
-              expense.date.year == now.year;
-        }).toList();
-      case Period.weekly:
-        final startOfWeek = now.subtract(Duration(days: now.weekday));
-        final endOfWeek = startOfWeek.add(const Duration(days: 7));
-        return expenses.where((expense) {
-          return (expense.date.isAfter(startOfWeek) ||
-                  expense.date.isAtSameMomentAs(startOfWeek)) &&
-              (expense.date.isBefore(endOfWeek.add(Duration(days: 1))) ||
-                  expense.date.isAtSameMomentAs(endOfWeek));
-        }).toList();
-      case Period.year:
-        return expenses.where((expense) {
-          return expense.date.year == now.year;
-        }).toList();
-      default:
-        return expenses;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredExpenses = _filterExpenses(_registeredExpenses);
+    final filteredExpenses =
+        filterExpenses(_registeredExpenses, selectedFilter);
     final groupedExpenses = groupExpensesByDate(filteredExpenses);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Transactions"),
+        title: Text(
+          "Transactions",
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Colors.black,
+              ),
+        ),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
+          IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.search,
+                color: Theme.of(context).colorScheme.secondary,
+              )),
+          IconButton(
+              onPressed: () {},
+              icon: Icon(
+                Icons.more_vert,
+                color: Theme.of(context).colorScheme.secondary,
+              )),
         ],
       ),
       body: Column(
@@ -120,7 +96,6 @@ class _ExpensesState extends State<Expenses> {
           _buildFilterRow(),
           _buildTotalsRow(),
           Expanded(child: _buildExpensesList(groupedExpenses)),
-          const Text('Show more'),
         ],
       ),
       bottomNavigationBar: BottomNavigation(onAddExpense: _addExpense),
@@ -135,11 +110,12 @@ class _ExpensesState extends State<Expenses> {
         children: [
           ...Period.values.map(
             (period) => filterPeriodContainer(
+              context,
               period.name,
-              const Color(0xFF6D31ED),
-              const Color(0xFFF5F1FE),
+              Theme.of(context).colorScheme.primary,
+              Theme.of(context).colorScheme.onPrimary,
               period,
-              _selectedFilter,
+              selectedFilter,
               _onPeriodChanged,
             ),
           ),
@@ -155,12 +131,18 @@ class _ExpensesState extends State<Expenses> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           _buildTotalColumn(
-              'Income', _calculateTotal(Type.income), const Color(0xFF6D31ED)),
-          _buildTotalColumn('Outcome', _calculateTotal(Type.outcome),
-              const Color.fromARGB(255, 237, 49, 49)),
+              'Income',
+              calculateTotal(Type.income, _registeredExpenses, selectedFilter),
+              Theme.of(context).colorScheme.primary),
+          _buildTotalColumn(
+              'Outcome',
+              calculateTotal(Type.outcome, _registeredExpenses, selectedFilter),
+              Theme.of(context).colorScheme.error),
           _buildTotalColumn(
               'Total',
-              _calculateTotal(Type.income) - _calculateTotal(Type.outcome),
+              calculateTotal(Type.income, _registeredExpenses, selectedFilter) -
+                  calculateTotal(
+                      Type.outcome, _registeredExpenses, selectedFilter),
               Colors.black),
         ],
       ),
@@ -170,11 +152,17 @@ class _ExpensesState extends State<Expenses> {
   Widget _buildTotalColumn(String label, double amount, Color color) {
     return Column(
       children: [
-        Text(label),
+        Text(label,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                )),
         Text(
           '\$${amount.toStringAsFixed(2)}',
-          style: GoogleFonts.manrope(
-              fontWeight: FontWeight.bold, fontSize: 11, color: color),
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
         ),
       ],
     );
